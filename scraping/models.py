@@ -18,8 +18,6 @@ class Chapter:
 
     def set_title(self, title: str):
         self.__title = title
-        if not isinstance(num, int):
-            raise TypeError("num must be an integer")
 
     def set_content(self, content: str):
         self.__content = content
