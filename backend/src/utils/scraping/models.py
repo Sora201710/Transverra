@@ -24,10 +24,10 @@ class Chapter:
 
 
 class Novel:
-    def __init__(self, title: str = "", author: str = "", chapters: list[Chapter] | None = None):
+    def __init__(self, title: str = "", author: str = "", chapters: list[Chapter] = []):
         self.__title = title
         self.__author = author
-        self.__chapters = chapters if chapters is not None else []
+        self.__chapters = chapters
 
     def get_title(self) -> str:
         return self.__title
@@ -46,7 +46,6 @@ class Novel:
 
     def add_chapter(self, chapter: Chapter):
 
-        # TODO: understand what's happening here
         if any(ch.get_num() == chapter.get_num() for ch in self.__chapters):
             raise ValueError(f"Duplicate chapter number: {chapter.get_num()}")
 
