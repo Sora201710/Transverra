@@ -1,8 +1,8 @@
-import ReaderPage from "./pages/book";
-import UploadPage from "./pages/translate";
+//import NovelPage from "./pages/NovelPage";
+import TranslatePage from "./pages/TranslatePage";
 
 function App() {
-  return <ReaderPage />;
+  return <TranslatePage />;
 }
 
 export default App;
