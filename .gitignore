@@ -4,4 +4,5 @@ node_modules
 output
 .vscode
 venv
+.env
 __pycache__
