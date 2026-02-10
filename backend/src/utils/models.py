@@ -22,12 +22,20 @@ class Chapter:
     def set_content(self, content: str):
         self.__content = content
 
+    def __str__(self):
+        return f"Number: {self.get_num()}\nTitle: {self.get_title()}\nContent:\n{self.get_content()}"
+
 
 class Novel:
-    def __init__(self, title: str = "", author: str = "", chapters: list[Chapter] = []):
+    def __init__(
+        self, title: str = "", author: str = "", chapters: list[Chapter] = None
+    ):
         self.__title = title
         self.__author = author
-        self.__chapters = chapters
+        if chapters is None:
+            self.__chapters = []
+        else:
+            self.__chapters = chapters
 
     def get_title(self) -> str:
         return self.__title
@@ -45,16 +53,12 @@ class Novel:
         self.__author = author
 
     def add_chapter(self, chapter: Chapter):
+        self.__chapters.append(chapter)
 
-        if any(ch.get_num() == chapter.get_num() for ch in self.__chapters):
-            raise ValueError(f"Duplicate chapter number: {chapter.get_num()}")
-
-        inserted = False
-        for i, ch in enumerate(self.__chapters):
-            if chapter.get_num() < ch.get_num():
-                self.__chapters.insert(i, chapter)
-                inserted = True
-                break
-
-        if not inserted:
-            self.__chapters.append(chapter)
+    def __str__(self):
+        chapter_string = ""
+        for chapter in self.get_chapters():
+            chapter_string += "\n" + str(chapter) + "\n"
+        return (
+            f"Author: {self.get_author()}\nTitle: {self.get_title()}" + chapter_string
+        )
