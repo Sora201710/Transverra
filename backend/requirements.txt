@@ -1,3 +1,0 @@
-translators
-bs4
-deep-translator
