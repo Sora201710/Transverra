@@ -4,31 +4,10 @@
 #       - worst case need to host my own LLM
 # selenium probably won't work due to this reason
 
-from models import Novel
-from bs4 import BeautifulSoup
-from extractors import AO3Extractor
+from models import Novel, Chapter
 from deep_translator import GoogleTranslator
+import copy
 
-
-def translate(novel: Novel) -> Novel:
-    translated_novel = Novel()
-    return translated_novel
-
-
-html = ""
-with open(
-    "/home/christopherroy/Projects/Transverra/backend/src/data/Viendo_el_Arco_6_en_el.html",
-    "r",
-) as f:
-    html = f.read()
-
-extractor = AO3Extractor()
-extractor.set_author(html)
-extractor.set_title(html)
-extractor.set_chapters(html)
-novel = extractor.get_novel()
-
-chapter_content = novel.get_chapters()[0].get_content()
 BATCH_SIZE = 4500
 
 
@@ -44,16 +23,33 @@ def get_batches(text: str) -> list[str]:
     return [text[i : i + BATCH_SIZE] for i in range(0, len(text), BATCH_SIZE)]
 
 
-translated_text = GoogleTranslator(source="auto", target="en").translate_batch(
-    get_batches(chapter_content)
-)
-
-
-print(f"Translated HTML: ")
-print(f"Author: {novel.get_author()}")
-print(
-    f"Title: {GoogleTranslator(source="auto", target="en").translate(novel.get_title())}"
-)
-chapter = novel.get_chapters()[0]
-print(GoogleTranslator(source="auto", target="en").translate(chapter.get_title()))
-print(translated_text)
+def translate(novel: Novel, options: dict) -> Novel:
+    if not novel:
+        return novel
+    translated_novel = Novel()
+    translated_novel.set_author(novel.get_author())
+    translated_novel.set_title(
+        GoogleTranslator(source=options["source"], target=options["target"]).translate(
+            novel.get_title()
+        )
+    )
+    print("Beginning chapter translations: ")
+    count = 1
+    print(f"Number of chapters: {len(novel.get_chapters())}")
+    for chapter in novel.get_chapters():
+        translated_chapter = Chapter()
+        translated_chapter.set_num(chapter.get_num())
+        translated_chapter.set_title(
+            GoogleTranslator(
+                source=options["source"], target=options["target"]
+            ).translate(chapter.get_title())
+        )
+        translated_chapter_content_batches = GoogleTranslator(
+            source=options["source"], target=options["target"]
+        ).translate_batch(get_batches(chapter.get_content()))
+        translated_chapter_content = "".join(translated_chapter_content_batches)
+        translated_chapter.set_content(translated_chapter_content)
+        translated_novel.add_chapter(translated_chapter)
+        print(f"Completed translation of chapter {count}")
+        count += 1
+    return translated_novel
