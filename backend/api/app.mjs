@@ -7,7 +7,7 @@ const app = express();
 
 // load root .env
 dotenv.config({
-  path: path.resolve(process.cwd(), "../../../.env"),
+  path: path.resolve(process.cwd(), "../../.env"),
 });
 
 app.use(
