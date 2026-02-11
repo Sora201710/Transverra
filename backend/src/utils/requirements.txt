@@ -1,3 +1,6 @@
 translators
 bs4
 deep-translator
+celery
+dotenv
+redis
