@@ -16,7 +16,7 @@ export default function TranslatePage() {
     formData.append("targetLang", data.targetLang);
 
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/translate`,
+      `${import.meta.env.VITE_TRANSLATE_API_URL}/api/translate`,
       {
         method: "POST",
         body: formData, // your FormData goes here

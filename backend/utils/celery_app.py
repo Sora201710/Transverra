@@ -2,7 +2,7 @@ from celery import Celery
 import os
 from dotenv import load_dotenv
 
-load_dotenv("../../../.env")
+load_dotenv(os.environ.get("ENV_PATH"))
 
 REDIS_URL = os.getenv("REDIS_URL")
 app = Celery("tasks", broker=REDIS_URL)

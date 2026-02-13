@@ -4,3 +4,5 @@ deep-translator
 celery
 dotenv
 redis
+fastapi[standard]
+python-multipart
