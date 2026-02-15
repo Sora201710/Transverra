@@ -11,19 +11,6 @@ load_dotenv(os.environ.get("ENV_PATH"))
 REDIS_URL = os.getenv("REDIS_URL")
 app = Celery("tasks", backend=REDIS_URL, broker=REDIS_URL)
 
-# TODO: use RPC to send real time state changes
-# to frontend or express server
-
-# TODO: setup a fastapi python server
-# to handle all the translation requests
-# then make it communicate with express
-# server
-
-
-@app.task
-def add(x, y):
-    return x + y
-
 
 class InvalidNovelSourceException(Exception):
     """Exception raised when novel source is not allowed.
@@ -37,7 +24,7 @@ class InvalidNovelSourceException(Exception):
         super().__init__(self.message)
 
 
-@app.task
+@app.task(track_started=True)
 def translate_task(text: str, options):
     extractor = None
 

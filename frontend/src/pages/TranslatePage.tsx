@@ -1,32 +1,92 @@
-import TranslateForm from "../components/TranslateForm"; // adjust path as needed
+import TranslateForm from "../components/TranslateForm";
+import { useState, useEffect } from "react";
+
+const POLL_INTERVAL = 20_000;
 
 export default function TranslatePage() {
-  // This function receives the form data from TranslateForm
   const handleFormSubmit = async (data: {
     source: string;
     file: File | null;
     sourceLang: string;
     targetLang: string;
   }) => {
-    // send data to backend
     const formData = new FormData();
     formData.append("source", data.source);
     formData.append("file", data.file!);
     formData.append("sourceLang", data.sourceLang);
     formData.append("targetLang", data.targetLang);
 
-    const response = await fetch(
+    let response = await fetch(
       `${import.meta.env.VITE_TRANSLATE_API_URL}/api/translate`,
       {
         method: "POST",
-        body: formData, // your FormData goes here
+        body: formData,
       },
     );
 
-    // Parse JSON response
-    const result = await response.json();
-    console.log("Response from backend:", result);
+    let result = await response.json();
+
+    response = await fetch(
+      `${import.meta.env.VITE_TRANSLATE_API_URL}/api/translate_status`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ task_id: result.task_id }),
+      },
+    );
+
+    result = await response.json();
+
+    console.log("fetched task status");
+    console.log(`${JSON.stringify(result)}`);
+
+    set_task_result(result);
   };
+
+  const [task_result, set_task_result] = useState({
+    task_id: "",
+    state: "",
+    result: {},
+  });
+  // poll fastapi backend for task status
+  useEffect(() => {
+    if (task_result.task_id.length <= 0) return;
+
+    let result = task_result;
+
+    if (result.state == "SUCCESSFUL") {
+      console.log("task is successful");
+      console.log(result);
+      return;
+    }
+    if (result.state == "FAILURE") {
+      console.log("task is failure");
+      return;
+    }
+    let interval: number;
+    if (result.state == "STARTED") {
+      console.log("Waiting for task to complete");
+      interval = setInterval(async () => {
+        let response = await fetch(
+          `${import.meta.env.VITE_TRANSLATE_API_URL}/api/translate_status`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ task_id: task_result.task_id }),
+          },
+        );
+        let result = await response.json();
+        set_task_result(result);
+      }, POLL_INTERVAL);
+    }
+    return () => {
+      clearInterval(interval);
+    };
+  }, [task_result]);
 
   return (
     <div>
