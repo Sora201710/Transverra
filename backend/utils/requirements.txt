@@ -6,3 +6,4 @@ dotenv
 redis
 fastapi[standard]
 python-multipart
+jsonpickle

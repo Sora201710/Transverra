@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
+from celery_app import translate_task
+from jsonpickle import decode
 
 load_dotenv(os.environ.get("ENV_PATH"))
 
@@ -31,6 +33,7 @@ class TranslateOptions(BaseModel):
 """
 
 
+# TODO: add plain text as a submission option, with a text limit of 100, 000 per day
 @app.post("/api/translate")
 async def root(
     source: str = Form(...),
@@ -38,12 +41,19 @@ async def root(
     targetLang: str = Form(...),
     file: UploadFile | None = None,
 ):
+    translated_novel = None
     if file:
-        # TODO: remove this later
-        print("Received file!")
-    return {
-        "source": source,
-        "sourceLang": sourceLang,
-        "targetLang": targetLang,
-        "file": file,
-    }
+        text = file.file.read()
+        print("right before translation")
+        res = translate_task.delay(
+            text,
+            {
+                "source": source,
+                "sourceLang": sourceLang,
+                "targetLang": targetLang,
+            },
+        )
+        translated_novel_json = res.get()
+        translated_novel = decode(translated_novel_json)
+
+    return translated_novel

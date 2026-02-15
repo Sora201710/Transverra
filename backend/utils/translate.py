@@ -29,9 +29,9 @@ def translate(novel: Novel, options: dict) -> Novel:
     translated_novel = Novel()
     translated_novel.set_author(novel.get_author())
     translated_novel.set_title(
-        GoogleTranslator(source=options["source"], target=options["target"]).translate(
-            novel.get_title()
-        )
+        GoogleTranslator(
+            source=options["sourceLang"], target=options["targetLang"]
+        ).translate(novel.get_title())
     )
     print("Beginning chapter translations: ")
     count = 1
@@ -41,11 +41,11 @@ def translate(novel: Novel, options: dict) -> Novel:
         translated_chapter.set_num(chapter.get_num())
         translated_chapter.set_title(
             GoogleTranslator(
-                source=options["source"], target=options["target"]
+                source=options["sourceLang"], target=options["targetLang"]
             ).translate(chapter.get_title())
         )
         translated_chapter_content_batches = GoogleTranslator(
-            source=options["source"], target=options["target"]
+            source=options["sourceLang"], target=options["targetLang"]
         ).translate_batch(get_batches(chapter.get_content()))
         translated_chapter_content = "".join(translated_chapter_content_batches)
         translated_chapter.set_content(translated_chapter_content)

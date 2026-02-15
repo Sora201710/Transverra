@@ -30,3 +30,21 @@ class AO3Extractor:
             self.__novel.add_chapter(
                 Chapter(num=i + 1, title=chapter_titles[i].text, content=chapter.text)
             )
+
+
+# TODO: this shouldn't really do much, but also make the extractor interface
+class TextExtractor:
+    def __init__(self):
+        self.__novel = Novel()
+
+    def get_novel(self) -> Novel:
+        return self.__novel
+
+    def set_author(self, text: str) -> None:
+        self.__novel.set_author("")
+
+    def set_title(self, text: str) -> None:
+        self.__novel.set_title("")
+
+    def set_chapters(self, text: str) -> None:
+        self.__novel.add_chapter(num=1, title="", content=text)

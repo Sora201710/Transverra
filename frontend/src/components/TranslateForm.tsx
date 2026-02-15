@@ -122,13 +122,13 @@ function FormFields({
 // -------------------- Translate Form --------------------
 export default function TranslateForm({ onSubmit }: TranslateFormProps) {
   const [formData, setFormData] = useState<FormData>({
-    source: "Archive of Our Own",
+    source: "Archive Of Our Own",
     file: null,
     sourceLang: "auto",
     targetLang: "en",
   });
 
-  const sources = ["Archive of Our Own"];
+  const sources = ["Archive Of Our Own"];
   const languages = ["auto", "en", "es"];
   const targetLanguages = ["en", "es"];
 
