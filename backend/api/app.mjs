@@ -11,19 +11,26 @@ const app = express();
 dotenv.config({
   path: process.env.ENV_PATH,
 });
+let users;
+let novels;
 
 const MONGO_URL = process.env.MONGO_URL;
 async function runGetStarted() {
   const client = new MongoClient(MONGO_URL);
-  try {
-    const db = client.db("transverra");
-    const usersCollection = db.collection("users");
-    const novelsCollection = db.collection("novels");
-  } finally {
-    await client.close();
-  }
+  await client.connect();
+  const db = client.db("transverra");
+  users = db.collection("users");
+  novels = db.collection("novels");
 }
-runGetStarted().catch(console.dir);
+runGetStarted()
+  .then(() => {
+    app.listen(process.env.API_PORT, () => {
+      console.log(
+        `Transverra API hosted on: ${process.env.API_HOST}:${process.env.API_PORT}`,
+      );
+    });
+  })
+  .catch(console.dir);
 
 app.use(
   cors({
@@ -38,8 +45,18 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(process.env.API_PORT, () => {
-  console.log(
-    `Transvera API hosted on: ${process.env.API_HOST}:${process.env.API_PORT}`,
-  );
+app.use(express.json({ limit: "50mb" }));
+
+/**
+ *
+ */
+app.post("/api/upload_novel", async (req, res) => {
+  const result = await novels.insertOne(req.body);
+  res.json(result);
+});
+
+// TODO: implement this
+app.get("/api/get_novel", async (req, res) => {
+  const result = await novels.findOne({ _id: new ObjectId(req.query.id) });
+  res.json(result);
 });

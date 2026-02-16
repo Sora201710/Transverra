@@ -1,7 +1,7 @@
 import TranslateForm from "../components/TranslateForm";
 import { useState, useEffect } from "react";
 
-const POLL_INTERVAL = 20_000;
+const POLL_INTERVAL = 3_000;
 
 export default function TranslatePage() {
   const handleFormSubmit = async (data: {
@@ -59,7 +59,26 @@ export default function TranslatePage() {
     if (result.state == "SUCCESSFUL") {
       console.log("task is successful");
       console.log(result);
-      // TODO: send a request to DB here to store the novel
+      const storeInDatabase = async () => {
+        console.log("reached storeInDatabase");
+        let response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/upload_novel`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(result.result),
+          },
+        );
+        console.log("right before novel_res is resolved");
+        let novel_res = await response.json();
+        console.log("right after novel_res is resolved");
+        // TODO: make page actually show link to novel
+        console.log(`Novel inserted: ${JSON.stringify(novel_res)}`);
+      };
+      storeInDatabase();
+      console.log("after storeInDatabase");
       return;
     }
     if (result.state == "FAILURE") {
