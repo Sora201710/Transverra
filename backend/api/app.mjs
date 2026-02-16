@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 import express from "express";
 import cors from "cors";
+import { MongoClient } from "mongodb";
 
 const app = express();
 
@@ -10,6 +11,19 @@ const app = express();
 dotenv.config({
   path: process.env.ENV_PATH,
 });
+
+const MONGO_URL = process.env.MONGO_URL;
+async function runGetStarted() {
+  const client = new MongoClient(MONGO_URL);
+  try {
+    const db = client.db("transverra");
+    const usersCollection = db.collection("users");
+    const novelsCollection = db.collection("novels");
+  } finally {
+    await client.close();
+  }
+}
+runGetStarted().catch(console.dir);
 
 app.use(
   cors({

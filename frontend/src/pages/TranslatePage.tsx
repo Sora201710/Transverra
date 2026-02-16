@@ -59,6 +59,7 @@ export default function TranslatePage() {
     if (result.state == "SUCCESSFUL") {
       console.log("task is successful");
       console.log(result);
+      // TODO: send a request to DB here to store the novel
       return;
     }
     if (result.state == "FAILURE") {
