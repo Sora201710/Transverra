@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 import express from "express";
 import cors from "cors";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 
 const app = express();
 
@@ -55,8 +55,11 @@ app.post("/api/upload_novel", async (req, res) => {
   res.json(result);
 });
 
-// TODO: implement this
-app.get("/api/get_novel", async (req, res) => {
-  const result = await novels.findOne({ _id: new ObjectId(req.query.id) });
+// TODO: separate db from backend by adding all this code under models
+// TODO: add error handling
+app.get("/api/get_novel/:novelId", async (req, res) => {
+  const result = await novels.findOne({
+    _id: new ObjectId(req.params.novelId),
+  });
   res.json(result);
 });
