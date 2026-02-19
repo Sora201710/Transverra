@@ -1,4 +1,5 @@
 import TranslateForm from "../components/TranslateForm";
+import { Link } from "react-router";
 import { useState, useEffect } from "react";
 
 const POLL_INTERVAL = 3_000;
@@ -50,6 +51,8 @@ export default function TranslatePage() {
     state: "",
     result: {},
   });
+
+  const [novel_id, set_novel_id] = useState("");
   // poll fastapi backend for task status
   useEffect(() => {
     if (task_result.task_id.length <= 0) return;
@@ -71,11 +74,8 @@ export default function TranslatePage() {
             body: JSON.stringify(result.result),
           },
         );
-        console.log("right before novel_res is resolved");
         let novel_res = await response.json();
-        console.log("right after novel_res is resolved");
-        // TODO: make page actually show link to novel
-        console.log(`Novel inserted: ${JSON.stringify(novel_res)}`);
+        set_novel_id(novel_res.insertedId);
       };
       storeInDatabase();
       console.log("after storeInDatabase");
@@ -112,6 +112,9 @@ export default function TranslatePage() {
     <div>
       <h1>Translate Page</h1>
       <TranslateForm onSubmit={handleFormSubmit} />
+      {novel_id && (
+        <Link to={`/novels/${novel_id}`}>Go to translated novel</Link>
+      )}
     </div>
   );
 }
