@@ -1,10 +1,14 @@
 //import NovelPage from "./pages/NovelPage";
 import { Outlet } from "react-router";
-import HomePage from "./pages/HomePage";
-import TranslatePage from "./pages/TranslatePage";
+import "@mantine/core/styles.css";
+import { createTheme, MantineProvider } from "@mantine/core";
 
-function App() {
-  return <Outlet />;
+const theme = createTheme({});
+
+export default function App() {
+  return (
+    <MantineProvider theme={theme}>
+      <Outlet></Outlet>
+    </MantineProvider>
+  );
 }
-
-export default App;
