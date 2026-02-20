@@ -1,154 +1,124 @@
 import { useState } from "react";
-// TODO: this should use use-form from mantine
+import {
+  Stack,
+  Select,
+  FileInput,
+  Button,
+  Group,
+  Textarea,
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
 
-// -------------------- Types --------------------
-interface FormData {
-  source: string;
-  file: File | null;
-  sourceLang: string;
-  targetLang: string;
-}
+/**
+ * We need
+ * 1) Drop down list of Novel Source
+ * 2) File input or
+ * 3) Text input, one of those are allowed depending on choice of source
+ * 4) Source Language dropdown list
+ * 5) Target Language Dropdown list
+ * 6) Translate Button
+ */
 
-interface SubmitButtonProps {
-  onClick: () => void;
-  disabled: boolean;
-}
+type Props = {
+  set_task_result: React.Dispatch<React.SetStateAction<string>>;
+};
 
-interface FormFieldsProps {
-  sources: string[];
-  languages: string[];
-  targetLanguages: string[];
-  formData: FormData;
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
-}
+const handleFormSubmit = (
+  set_task_result: React.Dispatch<React.SetStateAction<string>>,
+) => {
+  return async (data: {
+    source: string;
+    file: File | null;
+    sourceLang: string;
+    targetLang: string;
+  }) => {
+    const formData = new FormData();
+    formData.append("source", data.source);
+    formData.append("file", data.file!);
+    formData.append("sourceLang", data.sourceLang);
+    formData.append("targetLang", data.targetLang);
 
-interface TranslateFormProps {
-  onSubmit: (data: FormData) => void;
-}
+    let response = await fetch(
+      `${import.meta.env.VITE_TRANSLATE_API_URL}/api/translate`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
 
-// -------------------- Submit Button --------------------
-function SubmitButton({ onClick, disabled }: SubmitButtonProps) {
-  return (
-    <div>
-      <button onClick={onClick} disabled={disabled}>
-        Generate
-      </button>
-    </div>
-  );
-}
+    let result = await response.json();
 
-// -------------------- Form Fields --------------------
-function FormFields({
-  sources,
-  languages,
-  targetLanguages,
-  formData,
-  setFormData,
-}: FormFieldsProps) {
-  return (
-    <div>
-      {/* Novel Source */}
-      <div>
-        <label>
-          Novel Source:
-          <select
-            value={formData.source}
-            onChange={(e) =>
-              setFormData({ ...formData, source: e.target.value })
-            }
-          >
-            {sources.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+    response = await fetch(
+      `${import.meta.env.VITE_TRANSLATE_API_URL}/api/translate_status`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ task_id: result.task_id }),
+      },
+    );
 
-      {/* File upload */}
-      <div>
-        <label>
-          File:
-          <input
-            type="file"
-            onChange={(e) =>
-              setFormData({ ...formData, file: e.target.files?.[0] ?? null })
-            }
-          />
-        </label>
-      </div>
+    result = await response.json();
 
-      {/* Source language */}
-      <div>
-        <label>
-          Source Language:
-          <select
-            value={formData.sourceLang}
-            onChange={(e) =>
-              setFormData({ ...formData, sourceLang: e.target.value })
-            }
-          >
-            {languages.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+    console.log("fetched task status");
+    console.log(`${JSON.stringify(result)}`);
 
-      {/* Target language */}
-      <div>
-        <label>
-          Target Language:
-          <select
-            value={formData.targetLang}
-            onChange={(e) =>
-              setFormData({ ...formData, targetLang: e.target.value })
-            }
-          >
-            {targetLanguages.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-    </div>
-  );
-}
+    set_task_result(result);
+  };
+};
 
-// -------------------- Translate Form --------------------
-export default function TranslateForm({ onSubmit }: TranslateFormProps) {
-  const [formData, setFormData] = useState<FormData>({
-    source: "Archive Of Our Own",
-    file: null,
-    sourceLang: "auto",
-    targetLang: "en",
+export default function TranslateForm({ set_task_result }: Props) {
+  const novel_sources = ["Text", "Archive Of Our Own"];
+  const source_languages = ["auto", "en", "es"];
+  const target_languages = ["en", "es"];
+  const form = useForm({
+    mode: "uncontrolled",
+    initialValues: {
+      novel_source: "Archive Of Our Own",
+      source_language: "auto",
+      target_language: "en",
+    },
+    // TODO: figure out how to validate file_input/text input
+    // depending on drop down source
+    validate: {},
   });
 
-  const sources = ["Archive Of Our Own"];
-  const languages = ["auto", "en", "es"];
-  const targetLanguages = ["en", "es"];
-
-  const handleSubmit = () => {
-    onSubmit(formData);
-  };
-
-  const isDisabled = !formData.file; // require file for now
-
   return (
-    <div>
-      <FormFields
-        sources={sources}
-        languages={languages}
-        targetLanguages={targetLanguages}
-        formData={formData}
-        setFormData={setFormData}
-      />
-      <SubmitButton onClick={handleSubmit} disabled={isDisabled} />
-    </div>
+    <form onSubmit={form.onSubmit((values) => console.log(values))}>
+      <Stack w={300} ml="md" align="flex-start" justify="center" gap="md">
+        <Select
+          label="Source"
+          placeholder="Select what to translate from"
+          data={novel_sources}
+        />
+
+        <FileInput
+          variant="filled"
+          radius="md"
+          label="File"
+          description="only accepts .html of relevant webpage"
+          placeholder="Add file"
+        />
+
+        <Textarea label="Text" placeholder="Place text to translate" />
+
+        <Select
+          label="Source Language"
+          placeholder="Select source language"
+          data={source_languages}
+        />
+
+        <Select
+          label="Target Language"
+          placeholder="Select target language"
+          data={target_languages}
+        />
+
+        <Group justify="flex-end">
+          <Button type="submit">Translate</Button>
+        </Group>
+      </Stack>
+    </form>
   );
 }
