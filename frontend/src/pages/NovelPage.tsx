@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { Pagination, Text } from "@mantine/core";
+import { usePagination } from "@mantine/hooks";
 import { useLoaderData } from "react-router";
 
 // TODO: add this chapter to a typings folder or something.
@@ -10,53 +11,31 @@ interface Chapter {
 }
 
 export default function NovelPage() {
-  // Assume this comes from your backend / storage / props
   const novel = useLoaderData();
   const chapters = novel._Novel__chapters;
-
-  const [index, setIndex] = useState(0);
-
-  const current = chapters[index] ?? { title: "", text: "" };
-
-  function prev() {
-    setIndex((i) => Math.max(0, i - 1));
-  }
-
-  function next() {
-    setIndex((i) => Math.min(chapters.length - 1, i + 1));
-  }
-
+  const chapterContents = chapters.map((chapter: Chapter) => (
+    <>
+      <Text>{chapter._Chapter__title}</Text>
+      <Text mt="md">{chapter._Chapter__content}</Text>
+    </>
+  ));
+  const pagination = usePagination({ total: chapters.length, initialPage: 1 });
+  const currentChapter = chapterContents[pagination.active - 1];
   return (
-    <div>
-      <div>
-        <label>
-          Chapter:
-          <select
-            value={index}
-            onChange={(e) => setIndex(Number(e.target.value))}
-          >
-            {chapters.map((c: Chapter, i: number) => (
-              <option key={i} value={i}>
-                {c._Chapter__title ?? `Chapter ${i + 1}`}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      <div>
-        <h2>{current._Chapter__title}</h2>
-        <pre>{current._Chapter__content}</pre>
-      </div>
-
-      <div>
-        <button onClick={prev} disabled={index === 0}>
-          Previous
-        </button>
-        <button onClick={next} disabled={index === chapters.length - 1}>
-          Next
-        </button>
-      </div>
-    </div>
+    <>
+      <Pagination
+        total={chapters.length}
+        value={pagination.active}
+        onChange={pagination.setPage}
+        mb="lg"
+      />
+      {currentChapter}
+      <Pagination
+        total={chapters.length}
+        value={pagination.active}
+        onChange={pagination.setPage}
+        mt="lg"
+      />
+    </>
   );
 }

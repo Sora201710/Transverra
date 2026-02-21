@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Stack,
   Select,
@@ -9,34 +8,38 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
-/**
- * We need
- * 1) Drop down list of Novel Source
- * 2) File input or
- * 3) Text input, one of those are allowed depending on choice of source
- * 4) Source Language dropdown list
- * 5) Target Language Dropdown list
- * 6) Translate Button
- */
-
 type Props = {
   set_task_result: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const handleFormSubmit = (
-  set_task_result: React.Dispatch<React.SetStateAction<string>>,
-) => {
-  return async (data: {
-    source: string;
-    file: File | null;
-    sourceLang: string;
-    targetLang: string;
-  }) => {
+export default function TranslateForm({ set_task_result }: Props) {
+  const novelSources = ["Text", "Archive Of Our Own"];
+  const sourceLanguages = ["auto", "en", "es"];
+  const targetLanguages = ["en", "es"];
+  const form = useForm({
+    mode: "uncontrolled",
+    initialValues: {
+      source: "Archive Of Our Own",
+      sourceLang: "auto",
+      targetLang: "en",
+      file: null as File | null,
+      text: "",
+    },
+    // TODO: figure out how to validate file_input/text input
+    // depending on drop down source
+    validate: {},
+  });
+  const handleFormSubmit = async (data: typeof form.values) => {
     const formData = new FormData();
     formData.append("source", data.source);
-    formData.append("file", data.file!);
+    if (data.file) {
+      formData.append("file", data.file);
+    }
     formData.append("sourceLang", data.sourceLang);
     formData.append("targetLang", data.targetLang);
+    if (data.text) {
+      formData.append("text", data.text);
+    }
 
     let response = await fetch(
       `${import.meta.env.VITE_TRANSLATE_API_URL}/api/translate`,
@@ -66,53 +69,51 @@ const handleFormSubmit = (
 
     set_task_result(result);
   };
-};
-
-export default function TranslateForm({ set_task_result }: Props) {
-  const novel_sources = ["Text", "Archive Of Our Own"];
-  const source_languages = ["auto", "en", "es"];
-  const target_languages = ["en", "es"];
-  const form = useForm({
-    mode: "uncontrolled",
-    initialValues: {
-      novel_source: "Archive Of Our Own",
-      source_language: "auto",
-      target_language: "en",
-    },
-    // TODO: figure out how to validate file_input/text input
-    // depending on drop down source
-    validate: {},
-  });
+  // TODO: add the translation functionality back
 
   return (
-    <form onSubmit={form.onSubmit((values) => console.log(values))}>
+    <form onSubmit={form.onSubmit(handleFormSubmit)}>
       <Stack w={300} ml="md" align="flex-start" justify="center" gap="md">
         <Select
+          withAsterisk
           label="Source"
           placeholder="Select what to translate from"
-          data={novel_sources}
+          data={novelSources}
+          key={form.key("source")}
+          {...form.getInputProps("source")}
         />
 
         <FileInput
           variant="filled"
           radius="md"
           label="File"
-          description="only accepts .html of relevant webpage"
+          description="only accepts .html"
           placeholder="Add file"
+          key={form.key("file")}
+          {...form.getInputProps("file")}
         />
 
-        <Textarea label="Text" placeholder="Place text to translate" />
+        <Textarea
+          label="Text"
+          placeholder="Place text to translate"
+          key={form.key("text")}
+          {...form.getInputProps("text")}
+        />
 
         <Select
           label="Source Language"
           placeholder="Select source language"
-          data={source_languages}
+          data={sourceLanguages}
+          key={form.key("sourceLang")}
+          {...form.getInputProps("sourceLang")}
         />
 
         <Select
           label="Target Language"
           placeholder="Select target language"
-          data={target_languages}
+          data={targetLanguages}
+          key={form.key("targetLang")}
+          {...form.getInputProps("targetLang")}
         />
 
         <Group justify="flex-end">
