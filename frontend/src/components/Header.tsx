@@ -1,7 +1,7 @@
-import { Group } from "@mantine/core";
-import classes from "../css/Header.module.css";
-import { useState } from "react";
-
+import { Box, Group } from "@mantine/core";
+import { NavLink as RouterLink } from "react-router";
+import { NavLink, ThemeIcon } from "@mantine/core";
+import bookOpen from "../assets/book-open.svg";
 // TODO: fix broken links
 
 const links = [
@@ -11,24 +11,32 @@ const links = [
 ];
 
 export default function Header() {
-  const [active, setActive] = useState(links[0].link);
   const items = links.map((link) => (
-    <a
+    <NavLink
       key={link.label}
-      href={link.link}
-      className={classes.link}
-      data-active={active == link.link || undefined}
-      onClick={(event) => {
-        event.preventDefault();
-        setActive(link.link);
-      }}
-    >
-      {link.label}
-    </a>
+      label={link.label}
+      component={RouterLink}
+      to={link.link}
+    />
   ));
   return (
     <>
-      <Group mr="md">{items}</Group>
+      <Box
+        display="flex"
+        style={{
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+        mt="xs"
+        mb="lg"
+      >
+        <ThemeIcon size={40}>
+          <img src={bookOpen} alt="Logo.svg" />
+        </ThemeIcon>
+        <Group gap="md" wrap="nowrap">
+          {items}
+        </Group>
+      </Box>
     </>
   );
 }

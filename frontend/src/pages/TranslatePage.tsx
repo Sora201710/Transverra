@@ -69,7 +69,6 @@ export default function TranslatePage() {
 
   return (
     <div>
-      <h1>Translate Page</h1>
       <TranslateForm set_task_result={set_task_result} />
       {novel_id && (
         <Link to={`/novels/${novel_id}`}>Go to translated novel</Link>

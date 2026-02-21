@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import TranslatePage from "./pages/TranslatePage";
 import NovelPage from "./pages/NovelPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
+import NovelsPage from "./pages/NovelsPage.tsx";
 
 // TODO: add middleware for auth, error handling and data loading
 // TODO: add middleware for handling 404 errors
@@ -23,15 +24,20 @@ let router = createBrowserRouter([
         Component: TranslatePage,
       },
       {
-        path: "/novels/:novelId",
-        Component: NovelPage,
-        loader: async ({ params }) => {
-          // this should load novel from DB and pass it as prop
-          const novel = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/get_novel/${params.novelId}`,
-          );
-          return novel;
-        },
+        path: "/novels",
+        Component: NovelsPage,
+        children: [
+          {
+            path: ":novelId",
+            Component: NovelPage,
+            loader: async ({ params }) => {
+              const novel = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/get_novel/${params.novelId}`,
+              );
+              return novel;
+            },
+          },
+        ],
       },
     ],
   },

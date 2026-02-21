@@ -9,7 +9,13 @@ import {
 import { useForm } from "@mantine/form";
 
 type Props = {
-  set_task_result: React.Dispatch<React.SetStateAction<string>>;
+  set_task_result: React.Dispatch<
+    React.SetStateAction<{
+      task_id: string;
+      state: string;
+      result: {};
+    }>
+  >;
 };
 
 export default function TranslateForm({ set_task_result }: Props) {
