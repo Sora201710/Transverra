@@ -7,6 +7,7 @@ import NovelPage from "./pages/NovelPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import NovelsPage from "./pages/NovelsPage.tsx";
 import NovelsLayout from "./pages/NovelsLayout.tsx";
+import NotFoundPage from "./pages/NotFoundPage.tsx";
 // TODO: add middleware for auth, error handling and data loading
 // TODO: add middleware for handling 404 errors
 
@@ -42,6 +43,10 @@ let router = createBrowserRouter([
             },
           },
         ],
+      },
+      {
+        path: "*",
+        Component: NotFoundPage,
       },
     ],
   },
