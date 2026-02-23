@@ -2,35 +2,14 @@ import dotenv from "dotenv";
 import path from "path";
 import express from "express";
 import cors from "cors";
-import { MongoClient, ObjectId } from "mongodb";
-
-const app = express();
+import { insertNovel, getNovel } from "./model.mts";
 
 // load root .env
-
 dotenv.config({
   path: process.env.ENV_PATH,
 });
-let users;
-let novels;
 
-const MONGO_URL = process.env.MONGO_URL;
-async function runGetStarted() {
-  const client = new MongoClient(MONGO_URL);
-  await client.connect();
-  const db = client.db("transverra");
-  users = db.collection("users");
-  novels = db.collection("novels");
-}
-runGetStarted()
-  .then(() => {
-    app.listen(process.env.API_PORT, () => {
-      console.log(
-        `Transverra API hosted on: ${process.env.API_HOST}:${process.env.API_PORT}`,
-      );
-    });
-  })
-  .catch(console.dir);
+const app = express();
 
 app.use(
   cors({
@@ -39,27 +18,24 @@ app.use(
   }),
 );
 
-app.get("/", (req, res) => {
-  res.send({
-    message: "Hello World!",
-  });
-});
-
 app.use(express.json({ limit: "50mb" }));
 
 /**
  *
  */
 app.post("/api/upload_novel", async (req, res) => {
-  const result = await novels.insertOne(req.body);
+  const result = await insertNovel(req.body);
   res.json(result);
 });
 
-// TODO: separate db from backend by adding all this code under models
 // TODO: add error handling
 app.get("/api/get_novel/:novelId", async (req, res) => {
-  const result = await novels.findOne({
-    _id: new ObjectId(req.params.novelId),
-  });
+  const result = await getNovel(req.params.novelId);
   res.json(result);
+});
+
+app.listen(process.env.API_PORT, () => {
+  console.log(
+    `Transverra API hosted on: ${process.env.API_HOST}:${process.env.API_PORT}`,
+  );
 });
