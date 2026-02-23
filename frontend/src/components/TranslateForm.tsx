@@ -6,7 +6,7 @@ import {
   Group,
   Textarea,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { isNotEmpty, useForm } from "@mantine/form";
 
 type Props = {
   set_task_result: React.Dispatch<
@@ -31,10 +31,37 @@ export default function TranslateForm({ set_task_result }: Props) {
       file: null as File | null,
       text: "",
     },
-    // TODO: figure out how to validate file_input/text input
-    // depending on drop down source
-    validate: {},
+    validate: {
+      sourceLang: isNotEmpty("Source Language cannot be empty"),
+      targetLang: isNotEmpty("Target language cannot be empty"),
+      file: (value, values) => {
+        if (value && values.source == "Text") {
+          return "Cannot submit a file if source is Text";
+        }
+        if (!value && values.source == "Archive Of Our Own") {
+          return "Must submit a file if source is Archive Of Our Own";
+        }
+        if (
+          value &&
+          values.source == "Archive Of Our Own" &&
+          !value.name.endsWith(".html")
+        ) {
+          return "Extension must be .html if source is Archive Of Our Own";
+        }
+        return null;
+      },
+      text: (value, values) => {
+        if (value && values.source == "Archive Of Our Own") {
+          return "Cannot submit text if source is Archive Of Our Own";
+        }
+        if (!value && values.source == "Text") {
+          return "Must submit text if source is Text";
+        }
+        return null;
+      },
+    },
   });
+
   const handleFormSubmit = async (data: typeof form.values) => {
     const formData = new FormData();
     formData.append("source", data.source);
@@ -75,7 +102,6 @@ export default function TranslateForm({ set_task_result }: Props) {
 
     set_task_result(result);
   };
-  // TODO: add the translation functionality back
 
   return (
     <form onSubmit={form.onSubmit(handleFormSubmit)}>

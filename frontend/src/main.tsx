@@ -6,7 +6,7 @@ import TranslatePage from "./pages/TranslatePage";
 import NovelPage from "./pages/NovelPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import NovelsPage from "./pages/NovelsPage.tsx";
-
+import NovelsLayout from "./pages/NovelsLayout.tsx";
 // TODO: add middleware for auth, error handling and data loading
 // TODO: add middleware for handling 404 errors
 
@@ -25,8 +25,12 @@ let router = createBrowserRouter([
       },
       {
         path: "/novels",
-        Component: NovelsPage,
+        Component: NovelsLayout,
         children: [
+          {
+            index: true,
+            Component: NovelsPage,
+          },
           {
             path: ":novelId",
             Component: NovelPage,

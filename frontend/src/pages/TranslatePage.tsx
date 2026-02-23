@@ -22,7 +22,6 @@ export default function TranslatePage() {
       console.log("task is successful");
       console.log(result);
       const storeInDatabase = async () => {
-        console.log("reached storeInDatabase");
         let response = await fetch(
           `${import.meta.env.VITE_API_URL}/api/upload_novel`,
           {
@@ -35,9 +34,14 @@ export default function TranslatePage() {
         );
         let novel_res = await response.json();
         set_novel_id(novel_res.insertedId);
+        if (!localStorage.getItem("novels")) {
+          localStorage.setItem("novels", JSON.stringify([]));
+        }
+        let novelIds: string[] = JSON.parse(localStorage.getItem("novels")!);
+        novelIds.push(novel_res.insertedId);
+        localStorage.setItem("novels", JSON.stringify(novelIds));
       };
       storeInDatabase();
-      console.log("after storeInDatabase");
       return;
     }
     if (result.state == "FAILURE") {
